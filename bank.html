@@ -4,17 +4,97 @@
     <meta charset="utf-8">
     <title>Bank Transaction Details</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: system-ui, sans-serif; margin: 20px; }
-        .card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-top: 12px; }
-        .items { margin-top: 8px; }
-        .item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; }
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f4f7f9; 
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card { 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin-top: 20px; 
+            overflow: hidden;
+        }
+
+        .items { margin-top: 20px; }
+        .item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; }
         .item:last-child { border-bottom: none; }
+
+        .total { 
+            margin-top: 20px; 
+            font-weight: bold; 
+            font-size: 18px; 
+        }
+        
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Transaction Details</h1>
-    <div id="transaction" class="card" style="display:none;"></div>
+    <header>
+        <h1>Transaction Details</h1>
+    </header>
+    <div class="container">
+        <div id="transaction" class="card" style="display:none;"></div>
+        <div class="footer">© 2024 Bank Name. All rights reserved.</div>
+    </div>
+    
     <script>
         // Fetch and display transaction data
         async function displayTransaction() {
@@ -26,9 +106,9 @@
                     const txEl = document.getElementById('transaction');
                     txEl.style.display = 'block';
                     txEl.innerHTML = `
-                        <div><strong>Merchant:</strong> ${tx.merchantName || 'Unknown'}</div>
-                        <div><strong>Time:</strong> ${tx.timestamp || ''}</div>
-                        <div><strong>Currency:</strong> ${tx.currency || ''}</div>
+                        <strong>Merchant:</strong> ${tx.merchantName || 'Unknown'}<br>
+                        <strong>Date:</strong> ${new Date(tx.timestamp).toLocaleString() || ''}<br>
+                        <strong>Currency:</strong> ${tx.currency || ''}<br>
                         <div class="items">
                             <strong>Items</strong>
                             ${Array.isArray(tx.items) ? tx.items.map(i => `
@@ -38,8 +118,8 @@
                                 </div>
                             `).join('') : ''}
                         </div>
-                        <div style="margin-top:8px;"><strong>Tax:</strong> ${(Number(tx.taxAmount ?? 0)).toFixed(2)}</div>
-                        <div><strong>Total:</strong> ${(Number(tx.totalAmount ?? 0)).toFixed(2)}</div>
+                        <div class="total"><strong>Tax:</strong> ${(Number(tx.taxAmount ?? 0)).toFixed(2)}</div>
+                        <div class="total"><strong>Total:</strong> ${(Number(tx.totalAmount ?? 0)).toFixed(2)}</div>
                     `;
                 } catch (e) {
                     console.error('Fetch error:', e);
