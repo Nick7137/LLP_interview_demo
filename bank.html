@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Bank Transaction Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 20px; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-top: 12px; }
+        .items { margin-top: 8px; }
+        .item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; }
+        .item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <h1>Transaction Details</h1>
+    <div id="transaction" class="card" style="display:none;"></div>
+    <script>
+        // Fetch and display transaction data
+        async function displayTransaction() {
+            const transactionUrl = new URLSearchParams(window.location.search).get('data');
+            if (transactionUrl) {
+                try {
+                    const res = await fetch(transactionUrl);
+                    const tx = await res.json();
+                    const txEl = document.getElementById('transaction');
+                    txEl.style.display = 'block';
+                    txEl.innerHTML = `
+                        <div><strong>Merchant:</strong> ${tx.merchantName || 'Unknown'}</div>
+                        <div><strong>Time:</strong> ${tx.timestamp || ''}</div>
+                        <div><strong>Currency:</strong> ${tx.currency || ''}</div>
+                        <div class="items">
+                            <strong>Items</strong>
+                            ${Array.isArray(tx.items) ? tx.items.map(i => `
+                                <div class="item">
+                                    <span>${i.qty} × ${i.name}</span>
+                                    <span>${Number(i.lineTotal ?? (i.unitPrice * i.qty)).toFixed(2)}</span>
+                                </div>
+                            `).join('') : ''}
+                        </div>
+                        <div style="margin-top:8px;"><strong>Tax:</strong> ${(Number(tx.taxAmount ?? 0)).toFixed(2)}</div>
+                        <div><strong>Total:</strong> ${(Number(tx.totalAmount ?? 0)).toFixed(2)}</div>
+                    `;
+                } catch (e) {
+                    console.error('Fetch error:', e);
+                }
+            } else {
+                alert('No transaction data provided.');
+            }
+        }
+        displayTransaction();
+    </script>
+</body>
+</html>
