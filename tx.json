@@ -1,0 +1,11 @@
+{
+"merchantName": "Demo Coffee",
+"timestamp": "2025-11-08T14:21:00Z",
+"currency": "USD",
+"totalAmount": 8.75,
+"taxAmount": 0.75,
+"items": [
+{ "name": "Latte", "qty": 1, "unitPrice": 5.00, "lineTotal": 5.40 },
+{ "name": "Croissant", "qty": 1, "unitPrice": 3.00, "lineTotal": 3.35 }
+]
+}
