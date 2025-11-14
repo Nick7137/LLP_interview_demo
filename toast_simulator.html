@@ -3,126 +3,226 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Toast Simulator</title>
+    <title>Card Reader Simulator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f26522">
+    <meta name="theme-color" content="#3993D4">
     <style>
         :root {
-            --bg: #121212;
-            --appbar: #0f0f0f;
-            --surface: #1e1e1e;
-            --border: #2a2a2a;
-            --text: #f5f5f5;
-            --muted: #c7c7c7;
-            --accent: #f26522;
-            --accent-2: #ff7a1a;
-            --success: #9be07f;
-            --danger: #ff5c5c;
+            --brand-blue: #3993d4;
+            --brand-blue-dark: #2d74a9;
+            --light-bg: #f0f2f5;
+            --white: #fff;
+            --text-dark: #1a1f36;
+            --text-light: #fff;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --success: #22c55e;
+            --danger: #ef4444;
         }
 
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        .appbar {
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            background: var(--light-bg);
+            color: var(--text-dark);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 12px 16px;
-            background: var(--appbar);
-            border-bottom: 1px solid var(--border);
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            padding: 24px;
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            font-weight: 600;
-            letter-spacing: .2px;
+        /* --- Main Device Structure & 3D Effect --- */
+        .device-wrapper {
+            perspective: 1200px;
         }
 
-        .brand .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-            background: var(--accent);
-            margin-right: 10px;
-        }
-
-        .brand span {
-            font-size: 18px;
-        }
-
-        .mode {
-            font-size: 13px;
-            color: var(--muted);
-        }
-
-        .container {
+        .card-reader-device {
+            width: 320px;
+            height: 480px;
+            background: #fdfdfd;
+            border-radius: 28px;
+            box-shadow:
+                0 2.8px 2.2px rgba(0, 0, 0, 0.02),
+                0 6.7px 5.3px rgba(0, 0, 0, 0.028),
+                0 12.5px 10px rgba(0, 0, 0, 0.035),
+                0 22.3px 17.9px rgba(0, 0, 0, 0.042),
+                0 41.8px 33.4px rgba(0, 0, 0, 0.05),
+                0 100px 80px rgba(0, 0, 0, 0.07),
+                inset 0 2px 4px rgba(255, 255, 255, 0.8),
+                inset 0 -4px 10px rgba(0, 0, 0, 0.05);
+            transform-style: preserve-3d;
+            transform: rotateX(10deg) rotateY(-20deg);
+            transition: transform 0.4s ease;
+            position: relative;
             padding: 16px;
-            max-width: 640px;
-            margin: 0 auto;
         }
 
-        h1 {
-            font-size: 22px;
-            margin: 12px 0 8px;
+        .card-reader-device.processing {
+            transform: rotateX(5deg) rotateY(-10deg) scale(0.98);
         }
 
-        .helper,
-        .status {
-            margin-top: 6px;
-            color: var(--muted);
-            font-size: 14px;
+        .screen-bezel {
+            width: 100%;
+            height: 100%;
+            background: #111;
+            border-radius: 18px;
+            overflow: hidden;
         }
 
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px;
-            margin-top: 16px;
-        }
-
-        .row {
+        .screen {
             display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            background: var(--brand-blue);
+            color: var(--text-light);
+            text-align: center;
+            border-radius: 16px;
+            padding: 12px;
+        }
+
+        .screen-header {
+            text-align: right;
+            font-size: 24px;
+            opacity: 0.5;
+            height: 24px;
+        }
+
+        .screen-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             gap: 12px;
         }
 
-        .grow {
-            flex: 1;
-        }
-
-        .pill {
-            display: inline-flex;
+        .screen-footer {
+            height: 60px;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: #1a1a1a;
-            color: var(--text);
+            justify-content: center;
         }
 
-        .items {
-            margin-top: 8px;
+        .card-slot {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85%;
+            height: 14px;
+            background: #e1e3e6;
+            border-radius: 7px;
+            border: 1px solid #ccc;
+            box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-slot::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1.5px;
+            background: #333;
+            transform: translateY(-50%);
+        }
+
+        /* --- Reader Screen Content --- */
+        .tap-icon {
+            width: 120px;
+            height: 120px;
+            color: var(--white);
+            transition: transform 0.3s ease;
+        }
+
+        .tap-icon.approved {
+            animation: approved-pop 0.5s ease-out;
+        }
+
+        @keyframes approved-pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .amount-display {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .status-text {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        .chip-card-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--white);
+            color: var(--brand-blue);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .chip-card-button svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* --- POS View (Tips & Receipt) --- */
+        #posView {
+            width: 100%;
+            max-width: 420px;
+            background: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 12px;
         }
 
         .item {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px dashed var(--border);
+            padding: 12px 0;
+            font-size: 15px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .item:last-child {
@@ -130,151 +230,12 @@
         }
 
         .price {
-            color: var(--success);
             font-weight: 600;
         }
 
-        .danger {
-            color: var(--danger);
-        }
-
-        .primary-btn,
-        .secondary-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-        }
-
-        .primary-btn {
-            color: #fff;
-            background: var(--accent);
-            box-shadow: 0 6px 16px rgba(242, 101, 34, .35);
-        }
-
-        .secondary-btn {
-            color: var(--text);
-            background: #252525;
-            border: 1px solid var(--border);
-        }
-
-        .primary-btn[disabled] {
-            opacity: .6;
-            cursor: default;
-            pointer-events: none;
-        }
-
-        .spinner {
-            width: 18px;
-            height: 18px;
-            border: 3px solid rgba(255, 255, 255, .2);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .terminal {
-            width: 100%;
-            max-width: 320px;
-            margin: 20px auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .terminal-screen {
-            background: #4285f4;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .terminal-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .terminal-icon {
-            margin-bottom: 20px;
-        }
-
-        .terminal-amount {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .terminal-instruction {
+        .total {
             font-size: 18px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .nfc-anim {
-            margin: 24px auto 8px;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 50% 50%, rgba(242, 101, 34, .15) 0, rgba(242, 101, 34, .05) 55%, transparent 60%);
-            border: 2px dashed rgba(242, 101, 34, .35);
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.06);
-            }
-        }
-
-        .toast {
-            position: fixed;
-            left: 50%;
-            bottom: 20px;
-            transform: translateX(-50%);
-            background: #2b2b2b;
-            color: #fff;
-            border: 1px solid var(--border);
-            padding: 10px 14px;
-            border-radius: 24px;
-            font-size: 15px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .25s, transform .25s;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(-4px);
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: #1a1a1a;
-            color: var(--text);
-            font-size: 16px;
+            font-weight: 700;
         }
 
         .grid {
@@ -285,65 +246,175 @@
 
         .choice {
             padding: 10px 12px;
-            border: 1px solid var(--border);
-            background: #1a1a1a;
-            color: var(--text);
-            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--light-bg);
+            color: var(--text-dark);
+            border-radius: 8px;
             text-align: center;
             cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         .choice.active {
-            border-color: var(--accent);
-            background: #231815;
+            border-color: var(--brand-blue);
+            background: var(--brand-blue);
+            color: var(--white);
+            font-weight: 600;
         }
 
-        .total {
-            font-size: 18px;
-            font-weight: 700;
+        label.helper {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 6px;
         }
 
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #f9fafb;
+            color: var(--text-dark);
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 0 2px rgba(57, 147, 212, 0.3);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .grow {
+            flex-grow: 1;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .primary-btn {
+            color: var(--white);
+            background: var(--brand-blue);
+        }
+
+        .primary-btn:hover {
+            background: var(--brand-blue-dark);
+        }
+
+        .secondary-btn {
+            color: var(--text-dark);
+            background: var(--white);
+            border: 1px solid var(--border-color);
+        }
+
+        .secondary-btn:hover {
+            background-color: #f9fafb;
+        }
+
+
+        /* --- Utilities --- */
         .hidden {
-            display: none;
+            display: none !important;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            background: #323232;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s, transform .25s;
+            z-index: 999;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
         }
     </style>
 </head>
 
 <body>
-    <div class="appbar">
-        <div class="brand">
-            <div class="dot"></div>
-            <span>Toast Simulator</span>
-        </div>
-        <div class="mode" id="modeLabel">Mode: Card Reader</div>
-    </div>
-
-    <div class="container">
-        <!-- State 1: Card Machine Transaction -->
-        <section id="readerView">
-            <div class="terminal">
-                <div class="terminal-screen">
-                    <div class="terminal-content">
-                        <div class="terminal-icon">
-                            <svg viewBox="0 0 24 24" width="48" height="48">
-                                <path fill="currentColor"
-                                    d="M2,8.5C2,5.85 3.85,3.65 6.4,3.2C7.9,2.9 9.5,3.2 10.8,4.1C12.1,5 13,6.4 13.2,8H21.5C21.8,8 22.1,8.2 22.3,8.4C22.5,8.6 22.5,9 22.4,9.3L20,16H18V14L20,8.7H13.3C13.1,9.4 12.8,10.1 12.4,10.7L18,14.3L16.9,16L11.2,12.3C10.4,12.8 9.4,13.1 8.4,13.1C7.1,13.1 5.9,12.6 5,11.7C4.1,10.8 3.6,9.6 3.6,8.3C3.6,8.1 3.6,7.9 3.7,7.7C3.7,7.5 3.7,7.3 3.8,7.1C3.4,7.4 3.1,7.7 2.8,8.1C2.5,8.5 2.3,8.9 2.2,9.4C2.1,9.9 2,10.3 2,10.8V16H3.5C3.8,16 4,16.2 4,16.5C4,16.8 3.8,17 3.5,17H2V18.5C2,19.9 3.1,21 4.5,21C5.9,21 7,19.9 7,18.5V17H20.5C20.8,17 21,16.8 21,16.5C21,16.2 20.8,16 20.5,16H7V10.8C7,10.3 6.9,9.9 6.8,9.4C6.7,8.9 6.5,8.5 6.2,8.1C5.9,7.7 5.6,7.4 5.2,7.1C5.3,7.3 5.3,7.5 5.3,7.7C5.4,7.9 5.4,8.1 5.4,8.3C5.4,9.1 5.7,9.9 6.3,10.5C6.9,11.1 7.6,11.4 8.4,11.4C9.2,11.4 9.9,11.1 10.5,10.5C11.1,9.9 11.4,9.1 11.4,8.3C11.4,7.5 11.1,6.8 10.5,6.2C9.9,5.6 9.2,5.3 8.4,5.3C7.6,5.3 6.9,5.6 6.3,6.2C5.7,6.8 5.4,7.5 5.4,8.3C5.4,8.5 5.4,8.7 5.3,8.9C5.3,9.1 5.3,9.3 5.2,9.5C4.8,9.2 4.5,8.9 4.2,8.5C3.9,8.1 3.7,7.7 3.6,7.2C3.5,6.7 3.4,6.3 3.4,5.8V3H2V8.5Z" />
+    <div class="device-wrapper">
+        <!-- State 1: Card Reader View -->
+        <div class="card-reader-device" id="readerView">
+            <div class="screen-bezel">
+                <div class="screen">
+                    <div class="screen-header">
+                        <span class="close-icon">&times;</span>
+                    </div>
+                    <div class="screen-body">
+                        <div id="readerIconContainer">
+                            <!-- Tap Icon SVG -->
+                            <svg class="tap-icon" id="tapIcon" viewBox="0 0 64 64" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M29.28 40.23l-3.52-3.52a2.5 2.5 0 010-3.53l10-10a2.5 2.5 0 013.53 0l3.52 3.52" />
+                                <path d="M32.81 26.71l-4.24 4.24a2.5 2.5 0 000 3.53l6.5 6.5" />
+                                <path d="M42.22 23.18a10.9 10.9 0 010 15.42" />
+                                <path d="M47.78 17.63a18.51 18.51 0 010 26.17" />
+                                <path d="M53.34 12.07a26.12 26.12 0 010 36.94" />
+                                <path
+                                    d="M22.5 48.5V31.4a2.5 2.5 0 00-2.5-2.5H6.5a2.5 2.5 0 00-2.5 2.5v20a2.5 2.5 0 002.5 2.5h16a2.5 2.5 0 002.5-2.5v-2.9z" />
+                            </svg>
+                            <!-- Approved Icon SVG (Checkmark) -->
+                            <svg class="tap-icon hidden" id="approvedIcon" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6L9 17l-5-5"></path>
                             </svg>
                         </div>
-                        <div class="terminal-amount">$151.77</div>
-                        <div class="terminal-instruction">Tap, Insert, or Swipe</div>
+                        <div id="readerAmount" class="amount-display">$0.00</div>
+                        <div id="readerStatus" class="status-text">Tap, Insert, or Swipe</div>
+                        <p id="nfcHelper" style="font-size: 12px; opacity: 0.6; margin-top: 10px;"></p>
+                    </div>
+                    <div class="screen-footer">
+                        <div class="chip-card-button">
+                            <!-- Chip Icon SVG -->
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                <path d="M6 9h4m4 0h2M6 13h2m4 0h4"></path>
+                            </svg>
+                            <span>Insert Card</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
+            <div class="card-slot"></div>
+        </div>
 
-        <!-- State 2: Toast POS interface -->
+        <!-- State 2: POS View -->
         <section id="posView" class="hidden">
-            <h1>Toast POS</h1>
-            <p class="status">Enter tip and receipt info.</p>
+            <h1>Payment Details</h1>
 
             <div class="card">
-                <!-- <h2 style="margin:0 0 8px 0;">Order Summary</h2>
+                <h2>Order Summary</h2>
                 <div class="items">
                     <div class="item">
                         <div>Subtotal</div>
@@ -357,36 +428,35 @@
                         <div class="total">Total</div>
                         <div id="total" class="price total">$0.00</div>
                     </div>
-                </div> -->
+                </div>
             </div>
 
             <div class="card">
-                <h2 style="margin:0 0 8px 0;">Tip</h2>
+                <h2>Add a Tip</h2>
                 <div class="grid" id="tipChoices">
                     <div class="choice" data-pct="0">No Tip</div>
-                    <div class="choice" data-pct="10">10%</div>
                     <div class="choice" data-pct="15">15%</div>
+                    <div class="choice" data-pct="18">18%</div>
                     <div class="choice" data-pct="20">20%</div>
                 </div>
-                <div style="margin-top:10px;">
+                <div style="margin-top:14px;">
                     <label class="helper" for="customTipPct">Custom tip (%)</label>
-                    <input id="customTipPct" type="number" min="0" max="100" step="1"
-                        placeholder="Enter custom % (e.g., 18)">
+                    <input id="customTipPct" type="number" min="0" max="100" step="1" placeholder="Enter custom %">
                 </div>
             </div>
 
             <div class="card">
-                <h2 style="margin:0 0 8px 0;">Receipt</h2>
+                <h2>Receipt</h2>
                 <div class="row">
                     <div class="grow">
-                        <label class="helper" for="phone">Phone number (SMS receipt)</label>
+                        <label class="helper" for="phone">Phone number (for SMS receipt)</label>
                         <input id="phone" type="tel" inputmode="tel" placeholder="(555) 123-4567">
                     </div>
                 </div>
             </div>
 
-            <div class="row" style="margin-top:14px;">
-                <button class="secondary-btn" id="backToReader">Back to Reader</button>
+            <div class="btn-row">
+                <button class="secondary-btn" id="backToReader">Back</button>
                 <div class="grow"></div>
                 <button class="primary-btn" id="completeSale">
                     <span>Complete Sale</span>
@@ -398,69 +468,91 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script>
+        // --- DOM Elements ---
+        const readerView = document.getElementById('readerView');
+        const posView = document.getElementById('posView');
+        const readerDevice = document.querySelector('.card-reader-device');
+        const readerAmountEl = document.getElementById('readerAmount');
+        const readerStatusEl = document.getElementById('readerStatus');
+        const nfcHelperEl = document.getElementById('nfcHelper');
+        const tapIcon = document.getElementById('tapIcon');
+        const approvedIcon = document.getElementById('approvedIcon');
+
         // --- Utilities ---
         const fmt = (n) => '$' + (Math.round(n * 100) / 100).toFixed(2);
-        function showToast(msg, timeout = 2000) {
+        function showToast(msg, timeout = 2500) {
             const t = document.getElementById('toast');
             t.textContent = msg;
             t.classList.add('show');
             clearTimeout(t._timer);
             t._timer = setTimeout(() => t.classList.remove('show'), timeout);
         }
-        function beep(ms = 150, freq = 880) {
+        function beep(ms = 150, freq = 880, vol = 0.05) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.value = freq;
-                gain.gain.setValueAtTime(0.02, ctx.currentTime);
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(vol, ctx.currentTime);
                 osc.connect(gain).connect(ctx.destination);
                 osc.start();
                 setTimeout(() => { osc.stop(); ctx.close(); }, ms);
-            } catch { }
+            } catch { /* AudioContext might be blocked */ }
         }
 
         // --- State management ---
-        let state = 'reader';        // 'reader' | 'pos'
+        let appState = 'reader';        // 'reader' | 'pos'
         let reader;                  // NDEFReader instance
         let scanningReady = false;   // NFC scan permission acquired
-        let lastOrder = { amount: 12.75, description: 'Order' }; // default if tag lacks data
+        let lastOrder = { amount: 9.86, description: 'Order' }; // default if tag lacks data
         let handlingTap = false;
 
         function setState(next, payload) {
-            state = next;
-            document.getElementById('modeLabel').textContent =
-                'Mode: ' + (state === 'reader' ? 'Card Reader' : 'Toast POS');
-            document.getElementById('readerView').classList.toggle('hidden', state !== 'reader');
-            document.getElementById('posView').classList.toggle('hidden', state !== 'pos');
+            appState = next;
 
-            if (state === 'pos') {
+            readerView.classList.toggle('hidden', appState !== 'reader');
+            posView.classList.toggle('hidden', appState !== 'pos');
+
+            if (appState === 'pos') {
                 if (payload && payload.amount) lastOrder.amount = payload.amount;
                 renderPOS();
+            } else { // 'reader'
+                readerAmountEl.textContent = fmt(lastOrder.amount);
+                readerStatusEl.textContent = 'Tap, Insert, or Swipe';
+                tapIcon.classList.remove('hidden');
+                approvedIcon.classList.add('hidden');
+                updateNfcHelper();
+            }
+        }
+
+        function updateNfcHelper() {
+            if (!('NDEFReader' in window)) {
+                nfcHelperEl.textContent = 'Web NFC not supported on this browser.';
+                return;
+            }
+            if (!scanningReady) {
+                nfcHelperEl.textContent = 'Tap screen to enable NFC listening.';
             } else {
-                document.getElementById('lastAuth').style.display = 'none';
-                document.getElementById('readerStatus').textContent =
-                    scanningReady ? 'Ready. Hold a card/tag near the phone to simulate a tap-to-pay.'
-                        : 'Tap the screen once to enable NFC, then hold a card near the phone.';
+                nfcHelperEl.textContent = 'Listening for NFC tap...';
             }
         }
 
         // --- POS rendering and interactions ---
-        let tipPct = 0;
+        let tipPct = 18; // Default tip
         function renderPOS() {
             document.getElementById('subtotal').textContent = fmt(lastOrder.amount);
             const tip = Math.round(lastOrder.amount * tipPct) / 100;
             document.getElementById('tipAmount').textContent = fmt(tip);
             document.getElementById('total').textContent = fmt(lastOrder.amount + tip);
 
-            // visual selection state
             document.querySelectorAll('#tipChoices .choice').forEach(el => {
-                const pct = Number(el.dataset.pct);
-                el.classList.toggle('active', pct === tipPct);
+                el.classList.toggle('active', Number(el.dataset.pct) === tipPct);
             });
-            document.getElementById('customTipPct').value = tipPct % 1 === 0 ? tipPct : '';
+            document.getElementById('customTipPct').value = '';
         }
+
+
 
         function setTip(pct) {
             tipPct = Math.max(0, Math.min(100, Number(pct) || 0));
@@ -473,8 +565,14 @@
             setTip(Number(target.dataset.pct));
         });
         document.getElementById('customTipPct').addEventListener('input', (e) => {
-            const val = Number(e.target.value);
-            if (!isNaN(val)) setTip(val);
+            const val = parseFloat(e.target.value);
+            if (!isNaN(val)) {
+                tipPct = Math.max(0, Math.min(100, val));
+                renderPOS();
+                document.querySelectorAll('#tipChoices .choice').forEach(el => {
+                    el.classList.remove('active');
+                });
+            }
         });
 
         document.getElementById('backToReader').addEventListener('click', () => {
@@ -482,107 +580,87 @@
         });
 
         document.getElementById('completeSale').addEventListener('click', () => {
-            const phone = (document.getElementById('phone').value || '').trim();
             const tip = Math.round(lastOrder.amount * tipPct) / 100;
             const total = lastOrder.amount + tip;
 
-            // Simple phone validation: at least 10 digits (optional)
-            const digits = phone.replace(/\D/g, '');
-            if (phone && digits.length < 10) {
-                showToast('Enter a valid phone number');
-                return;
-            }
-
-            showToast('Payment complete • ' + fmt(total));
+            showToast('Payment of ' + fmt(total) + ' complete!');
             // Reset for next transaction
-            setTip(0);
+            lastOrder.amount = Math.floor(Math.random() * (50 - 5 + 1) + 5) + Math.random(); // New random amount
+            setTip(18);
             document.getElementById('phone').value = '';
             setState('reader');
         });
 
-        // --- NFC scanning (no explicit scan button) ---
-        function setListeningUI(active) {
-            const ind = document.getElementById('nfcIndicator');
-            ind.innerHTML = active
-                ? '<div class="spinner" aria-hidden="true"></div><span>Listening for NFC…</span>'
-                : '<span>Not listening</span>';
-        }
-
+        // --- NFC scanning logic ---
         function parseOrderFromTag(event) {
             let amount = null;
             try {
                 for (const record of event.message.records) {
-                    // Try URL or Text records; you can encode "amount=12.34" on your tag
                     if (record.recordType === 'text') {
                         const txt = new TextDecoder(record.encoding || 'utf-8').decode(record.data);
-                        // Match amount=12.34 or total:$12.34 or first number in text
                         let m = txt.match(/(?:amount|amt|total)\s*[:=]\s*\$?\s*(\d+(?:\.\d{1,2})?)/i);
                         if (!m) m = txt.match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
                         if (m) amount = Number(m[1]);
-                    } else if (record.recordType === 'mime' && record.mediaType === 'application/json') {
-                        const json = JSON.parse(new TextDecoder('utf-8').decode(record.data));
-                        if (typeof json.amount === 'number') amount = json.amount;
                     }
                 }
             } catch { }
-            if (!amount || !isFinite(amount)) amount = lastOrder.amount; // fallback
-            return { amount };
+            return { amount: (amount && isFinite(amount)) ? amount : lastOrder.amount };
         }
 
         async function startScan() {
             if (!('NDEFReader' in window)) {
-                document.getElementById('readerStatus').textContent =
-                    'Web NFC not supported. Use Chrome on Android.';
-                setListeningUI(false);
+                updateNfcHelper();
                 return;
             }
             try {
                 reader = new NDEFReader();
                 await reader.scan();
                 scanningReady = true;
-                setListeningUI(true);
-                document.getElementById('readerStatus').textContent =
-                    'Ready. Hold a card/tag near the phone to simulate a tap-to-pay.';
+                updateNfcHelper();
+
                 reader.onreadingerror = () => {
-                    if (state !== 'reader') return;
-                    document.getElementById('readerStatus').textContent = 'Read error, try again.';
+                    if (appState !== 'reader') return;
+                    readerStatusEl.textContent = 'Read error, please try again.';
                     showToast('NFC read error');
                 };
+
                 reader.onreading = (event) => {
-                    if (state !== 'reader' || handlingTap) return;
+                    if (appState !== 'reader' || handlingTap) return;
                     handlingTap = true;
 
-                    // Simulate processing and approval
-                    document.getElementById('readerStatus').textContent = 'Processing…';
-                    showToast('Card detected');
-                    beep(120, 1200);
+                    // 1. Card detected
+                    readerStatusEl.textContent = 'Processing...';
+                    readerDevice.classList.add('processing');
+                    beep(120, 1200, 0.08);
 
                     const order = parseOrderFromTag(event);
-                    // brief fake processing delay
+
+                    // 2. Simulate processing delay
                     setTimeout(() => {
-                        document.getElementById('authResult').textContent = 'Approved';
-                        document.getElementById('authAmount').textContent = fmt(order.amount);
-                        document.getElementById('lastAuth').style.display = '';
+                        // 3. Approved
+                        readerDevice.classList.remove('processing');
+                        readerStatusEl.textContent = 'Approved';
+                        readerAmountEl.textContent = fmt(order.amount);
+                        tapIcon.classList.add('hidden');
+                        approvedIcon.classList.remove('hidden');
+                        approvedIcon.classList.add('approved');
+                        beep(180, 980, 0.08);
 
-                        showToast('Approved ' + fmt(order.amount));
-                        beep(140, 880);
+                        // 4. Transition to POS view
+                        setTimeout(() => {
+                            setState('pos', order);
+                            handlingTap = false;
+                        }, 1200);
 
-                        // Transition to Toast POS interface for tip and receipt
-                        setState('pos', order);
-                        handlingTap = false;
-                    }, 900);
+                    }, 1000);
                 };
             } catch (err) {
-                // Most likely NotAllowedError due to missing user gesture
-                setListeningUI(false);
-                document.getElementById('readerStatus').textContent =
-                    'Tap the screen once to enable NFC, then hold a card near the phone.';
-                // Attach one-time gesture to begin scanning without a visible button
+                // User gesture needed
+                scanningReady = false;
+                updateNfcHelper();
                 const enableOnce = async () => {
                     document.removeEventListener('pointerdown', enableOnce);
-                    try {
-                        await startScan();
-                    } catch { }
+                    await startScan();
                 };
                 document.addEventListener('pointerdown', enableOnce, { once: true });
             }
@@ -590,10 +668,8 @@
 
         // Initialize
         (function init() {
-            // HTTPS note
-            if (!isSecureContext || location.protocol !== 'https:') {
-                document.getElementById('secureNote').textContent =
-                    'This page must be served over HTTPS. Web NFC works in Chrome on Android.';
+            if (!isSecureContext) {
+                nfcHelperEl.textContent = 'Web NFC requires a secure (HTTPS) connection.';
             }
             setState('reader');
             startScan();
