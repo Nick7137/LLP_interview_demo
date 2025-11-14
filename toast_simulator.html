@@ -137,10 +137,12 @@
 
         /* --- Reader Screen Content --- */
         .tap-icon {
-            width: 120px;
-            height: 120px;
+            width: 160px;
+            /* Adjusted size for new icon */
+            height: 100px;
             color: var(--white);
             transition: transform 0.3s ease;
+            margin-bottom: 10px;
         }
 
         .tap-icon.approved {
@@ -371,17 +373,27 @@
                     </div>
                     <div class="screen-body">
                         <div id="readerIconContainer">
-                            <!-- Tap Icon SVG -->
-                            <svg class="tap-icon" id="tapIcon" viewBox="0 0 64 64" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path
-                                    d="M29.28 40.23l-3.52-3.52a2.5 2.5 0 010-3.53l10-10a2.5 2.5 0 013.53 0l3.52 3.52" />
-                                <path d="M32.81 26.71l-4.24 4.24a2.5 2.5 0 000 3.53l6.5 6.5" />
-                                <path d="M42.22 23.18a10.9 10.9 0 010 15.42" />
-                                <path d="M47.78 17.63a18.51 18.51 0 010 26.17" />
-                                <path d="M53.34 12.07a26.12 26.12 0 010 36.94" />
-                                <path
-                                    d="M22.5 48.5V31.4a2.5 2.5 0 00-2.5-2.5H6.5a2.5 2.5 0 00-2.5 2.5v20a2.5 2.5 0 002.5 2.5h16a2.5 2.5 0 002.5-2.5v-2.9z" />
+                            <!-- NEW Tap Icon SVG -->
+                            <svg class="tap-icon" id="tapIcon" viewBox="0 0 90 60" fill="none" stroke="currentColor"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <g stroke-width="2.5">
+                                    <!-- Outer Ellipse -->
+                                    <ellipse cx="45" cy="30" rx="43" ry="28" />
+
+                                    <!-- Hand and Card -->
+                                    <path
+                                        d="M60 38 V 27 a 2 2 0 0 1 2 -2 h 11 a 2 2 0 0 1 2 2 v 11 a 2 2 0 0 1 -2 2 h -11 a 2 2 0 0 1 -2 -2 z"
+                                        fill="none" />
+                                    <path
+                                        d="M88 54 L 70 45 C 68 44 67.5 42 67.5 40 L 67.5 35 M 65 47 C 62 46 60 44 60 40.5 C 60 37 62 35 64 34 M 69 46 C 68 43 68 38 69 35" />
+
+                                    <!-- Waves -->
+                                    <g stroke-width="4.5">
+                                        <path d="M48 18 a 15 15 0 0 0 0 24" />
+                                        <path d="M40 21 a 11 11 0 0 0 0 18" />
+                                        <path d="M32 24 a 7 7 0 0 0 0 12" />
+                                    </g>
+                                </g>
                             </svg>
                             <!-- Approved Icon SVG (Checkmark) -->
                             <svg class="tap-icon hidden" id="approvedIcon" viewBox="0 0 24 24" fill="none"
@@ -551,8 +563,6 @@
             });
             document.getElementById('customTipPct').value = '';
         }
-
-
 
         function setTip(pct) {
             tipPct = Math.max(0, Math.min(100, Number(pct) || 0));
