@@ -138,15 +138,19 @@
         /* --- Reader Screen Content --- */
         .tap-icon {
             width: 160px;
-            /* Adjusted size for new icon */
             height: 100px;
-            color: var(--white);
+            object-fit: contain;
+            /* Ensures the image scales correctly */
             transition: transform 0.3s ease;
             margin-bottom: 10px;
+            filter: brightness(0) invert(1);
+            /* This trick makes the black PNG appear white */
         }
 
         .tap-icon.approved {
             animation: approved-pop 0.5s ease-out;
+            filter: none;
+            /* remove filter for the checkmark svg */
         }
 
         @keyframes approved-pop {
@@ -373,28 +377,12 @@
                     </div>
                     <div class="screen-body">
                         <div id="readerIconContainer">
-                            <!-- NEW Tap Icon SVG -->
-                            <svg class="tap-icon" id="tapIcon" viewBox="0 0 90 60" fill="none" stroke="currentColor"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <g stroke-width="2.5">
-                                    <!-- Outer Ellipse -->
-                                    <ellipse cx="45" cy="30" rx="43" ry="28" />
 
-                                    <!-- Hand and Card -->
-                                    <path
-                                        d="M60 38 V 27 a 2 2 0 0 1 2 -2 h 11 a 2 2 0 0 1 2 2 v 11 a 2 2 0 0 1 -2 2 h -11 a 2 2 0 0 1 -2 -2 z"
-                                        fill="none" />
-                                    <path
-                                        d="M88 54 L 70 45 C 68 44 67.5 42 67.5 40 L 67.5 35 M 65 47 C 62 46 60 44 60 40.5 C 60 37 62 35 64 34 M 69 46 C 68 43 68 38 69 35" />
+                            <!-- REPLACEMENT: Use an <img> tag -->
+                            <img class="tap-icon" id="tapIcon"
+                                src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/path/to/your/image.png"
+                                alt="Tap to pay icon">
 
-                                    <!-- Waves -->
-                                    <g stroke-width="4.5">
-                                        <path d="M48 18 a 15 15 0 0 0 0 24" />
-                                        <path d="M40 21 a 11 11 0 0 0 0 18" />
-                                        <path d="M32 24 a 7 7 0 0 0 0 12" />
-                                    </g>
-                                </g>
-                            </svg>
                             <!-- Approved Icon SVG (Checkmark) -->
                             <svg class="tap-icon hidden" id="approvedIcon" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -421,10 +409,9 @@
             <div class="card-slot"></div>
         </div>
 
-        <!-- State 2: POS View -->
+        <!-- State 2: POS View (No changes needed here) -->
         <section id="posView" class="hidden">
             <h1>Payment Details</h1>
-
             <div class="card">
                 <h2>Order Summary</h2>
                 <div class="items">
@@ -442,7 +429,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="card">
                 <h2>Add a Tip</h2>
                 <div class="grid" id="tipChoices">
@@ -456,7 +442,6 @@
                     <input id="customTipPct" type="number" min="0" max="100" step="1" placeholder="Enter custom %">
                 </div>
             </div>
-
             <div class="card">
                 <h2>Receipt</h2>
                 <div class="row">
@@ -466,7 +451,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="btn-row">
                 <button class="secondary-btn" id="backToReader">Back</button>
                 <div class="grow"></div>
@@ -480,6 +464,10 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script>
+        // --- THE JAVASCRIPT IS UNCHANGED ---
+        // It will work perfectly because it targets elements by their ID,
+        // and we kept the same ID ('tapIcon') for the new <img> tag.
+
         // --- DOM Elements ---
         const readerView = document.getElementById('readerView');
         const posView = document.getElementById('posView');
