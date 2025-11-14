@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Toast Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f26522">
+    <style>
+        :root {
+            --bg: #121212;
+            --appbar: #0f0f0f;
+            --surface: #1e1e1e;
+            --border: #2a2a2a;
+            --text: #f5f5f5;
+            --muted: #c7c7c7;
+            --accent: #f26522;
+            --accent-2: #ff7a1a;
+            --success: #9be07f;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .appbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--appbar);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            letter-spacing: .2px;
+        }
+
+        .brand .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            background: var(--accent);
+            margin-right: 10px;
+        }
+
+        .brand span {
+            font-size: 18px;
+        }
+
+        .container {
+            padding: 16px;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin: 12px 0 8px;
+        }
+
+        .helper,
+        #status {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .primary-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            color: #fff;
+            background: var(--accent);
+            box-shadow: 0 6px 16px rgba(242, 101, 34, .35);
+            cursor: pointer;
+        }
+
+        .primary-btn:active {
+            transform: scale(.995);
+        }
+
+        .primary-btn[disabled] {
+            opacity: .6;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 255, 255, .2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+
+        .card h2 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+        }
+
+        .items {
+            margin-top: 8px;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .price {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            background: #2b2b2b;
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            border-radius: 24px;
+            font-size: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s, transform .25s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="appbar">
+        <div class="brand">
+            <div class="dot"></div>
+            <span>Toast Simulator</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>NFC Order Scan</h1>
+        <p id="status" class="helper">Ready. Tap “Scan NFC” and hold a tag near the phone.</p>
+        <button id="scanBtn" class="primary-btn"><span>Scan NFC</span></button>
+
+        <div id="transaction" class="card" style="display:none;">
+            <h2>Order</h2>
+            <div class="items" id="orderItems"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        function showToast(msg, timeout = 2000) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => t.classList.remove('show'), timeout);
+        }
+
+        function setScanningUI(scanning) {
+            const btn = document.getElementById('scanBtn');
+            if (scanning) {
+                btn.disabled = true;
+                btn.innerHTML = '<div class="spinner" aria-hidden="true"></div><span>Scanning…</span>';
+            } else {
+                btn.disabled = false;
+                btn.textContent = 'Scan NFC';
+            }
+        }
+
+        async function startScan() {
+            const statusEl = document.getElementById('status');
+
+            if (!isSecureContext || location.protocol !== 'https:') {
+                statusEl.textContent = 'This page must be served over HTTPS for Web NFC.';
+            }
+
+            if (!('NDEFReader' in window)) {
+                statusEl.textContent = 'Web NFC not supported on this browser/device. Use Chrome on Android.';
+                showToast('Web NFC not supported');
+                return;
+            }
+
+            try {
+                const reader = new NDEFReader();
+                await reader.scan();
+                statusEl.textContent = 'Scanning… bring the NFC tag near the phone.';
+                setScanningUI(true);
+                showToast('Scanning…');
+
+                reader.onreadingerror = () => {
+                    statusEl.textContent = 'Read error, try again.';
+                    setScanningUI(false);
+                    showToast('Read error');
+                };
+
+                reader.onreading = (event) => {
+                    statusEl.textContent = 'Tag read. Processing…';
+                    showToast('Tag detected');
+
+                    let payload = null;
+                    for (const record of event.message.records) {
+                        try {
+                            if (record.recordType === 'url') {
+                                const url = new TextDecoder('utf-8').decode(record.data);
+                                payload = { type: 'url', value: url };
+                                break;
+                            }
+                            if (record.recordType === 'text') {
+                                const dec = new TextDecoder(record.encoding || 'utf-8');
+                                const txt = dec.decode(record.data);
+                                payload = { type: txt.startsWith('http') ? 'url' : 'text', value: txt };
+                                break;
+                            }
+                        } catch (e) { /* ignore */ }
+                    }
+
+                    setScanningUI(false);
+
+                    if (!payload) {
+                        statusEl.textContent = 'No usable URL/text record found on tag.';
+                        showToast('Unsupported tag content');
+                        return;
+                    }
+
+                    if (payload.type === 'url' && /^https?:\/\//.test(payload.value)) {
+                        showToast('Opening URL…');
+                        window.location.href = payload.value;
+                    } else {
+                        statusEl.textContent = 'Text payload read: ' + payload.value;
+                        showToast('Text payload read');
+                        const card = document.getElementById('transaction');
+                        const items = document.getElementById('orderItems');
+                        items.innerHTML = '<div class="item"><div>Tag text</div><div class="price">' +
+                            payload.value.replace(/</g, '&lt;') + '</div></div>';
+                        card.style.display = '';
+                    }
+                };
+            } catch (err) {
+                document.getElementById('status').textContent = 'NFC scan failed or permission denied.';
+                setScanningUI(false);
+                showToast('NFC permission denied');
+            }
+        }
+
+        document.getElementById('scanBtn').addEventListener('click', startScan);
+    </script>
+</body>
+
+</html>
