@@ -98,34 +98,129 @@
     <script>
         // Fetch and display transaction data
         async function displayTransaction() {
-            const transactionUrl = new URLSearchParams(window.location.search).get('data');
-            if (transactionUrl) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const txnId = urlParams.get('txn'); // Transaction number from receipt input
+            const transactionUrl = urlParams.get('data'); // Legacy support for direct URL
+            
+            let tx = null;
+
+            // Try to get transaction from localStorage first (from NFC tap)
+            if (txnId) {
+                try {
+                    const transactions = JSON.parse(localStorage.getItem('transactions') || '{}');
+                    // Try direct lookup first
+                    tx = transactions[txnId];
+                    
+                    // If not found, search by receipt number or transaction ID
+                    if (!tx) {
+                        for (const key in transactions) {
+                            const t = transactions[key];
+                            if (t.receiptNumber === txnId || t.id === txnId) {
+                                tx = t;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // If still not found in localStorage, try to fetch from a transactions API or file
+                    if (!tx) {
+                        // Try to load from a transactions data file
+                        try {
+                            const response = await fetch(`transactions/${txnId}.json`);
+                            if (response.ok) {
+                                tx = await response.json();
+                            }
+                        } catch (e) {
+                            console.log('Transaction not found in file system');
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error reading from localStorage:', e);
+                }
+            }
+
+            // Legacy support: fetch from URL
+            if (!tx && transactionUrl) {
                 try {
                     const res = await fetch(transactionUrl);
-                    const tx = await res.json();
-                    const txEl = document.getElementById('transaction');
-                    txEl.style.display = 'block';
-                    txEl.innerHTML = `
-                        <strong>Merchant:</strong> ${tx.merchantName || 'Unknown'}<br>
-                        <strong>Date:</strong> ${new Date(tx.timestamp).toLocaleString() || ''}<br>
-                        <strong>Currency:</strong> ${tx.currency || ''}<br>
-                        <div class="items">
-                            <strong>Items</strong>
-                            ${Array.isArray(tx.items) ? tx.items.map(i => `
-                                <div class="item">
-                                    <span>${i.qty} × ${i.name}</span>
-                                    <span>${Number(i.lineTotal ?? (i.unitPrice * i.qty)).toFixed(2)}</span>
-                                </div>
-                            `).join('') : ''}
-                        </div>
-                        <div class="total"><strong>Tax:</strong> ${(Number(tx.taxAmount ?? 0)).toFixed(2)}</div>
-                        <div class="total"><strong>Total:</strong> ${(Number(tx.totalAmount ?? 0)).toFixed(2)}</div>
-                    `;
+                    tx = await res.json();
                 } catch (e) {
                     console.error('Fetch error:', e);
                 }
+            }
+
+            // Fallback: use default transaction data
+            if (!tx) {
+                try {
+                    const res = await fetch('tx.json');
+                    tx = await res.json();
+                } catch (e) {
+                    console.error('Error loading default transaction:', e);
+                    tx = {
+                        merchantName: 'Unknown Merchant',
+                        timestamp: new Date().toISOString(),
+                        currency: 'USD',
+                        totalAmount: 0,
+                        taxAmount: 0,
+                        items: []
+                    };
+                }
+            }
+
+            if (tx) {
+                const txEl = document.getElementById('transaction');
+                txEl.style.display = 'block';
+                
+                const transactionDate = tx.timestamp ? new Date(tx.timestamp).toLocaleString() : new Date().toLocaleString();
+                const currency = tx.currency || 'USD';
+                
+                txEl.innerHTML = `
+                    <div style="margin-bottom: 16px;">
+                        <strong>Receipt Number:</strong> ${tx.receiptNumber || txnId || 'N/A'}<br>
+                        <strong>Transaction ID:</strong> ${tx.id || txnId || 'N/A'}<br>
+                        <strong>Merchant:</strong> ${tx.merchantName || 'Unknown'}<br>
+                        <strong>Date:</strong> ${transactionDate}<br>
+                        <strong>Currency:</strong> ${currency}<br>
+                    </div>
+                    <div class="items">
+                        <strong style="display: block; margin-bottom: 12px; font-size: 16px;">Itemized Receipt</strong>
+                        ${Array.isArray(tx.items) && tx.items.length > 0 ? tx.items.map(i => {
+                            const qty = i.qty || 1;
+                            const unitPrice = i.unitPrice || 0;
+                            const lineTotal = i.lineTotal ?? (unitPrice * qty);
+                            return `
+                                <div class="item">
+                                    <span>${qty} × ${i.name || 'Item'}</span>
+                                    <span>${currency === 'USD' ? '$' : ''}${Number(lineTotal).toFixed(2)}</span>
+                                </div>
+                            `;
+                        }).join('') : '<div class="item"><span>No items found</span></div>'}
+                    </div>
+                    <div class="total" style="margin-top: 16px; padding-top: 16px; border-top: 2px solid #ddd;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>Subtotal:</span>
+                            <span>${currency === 'USD' ? '$' : ''}${(Number(tx.totalAmount ?? 0) - Number(tx.taxAmount ?? 0)).toFixed(2)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>Tax:</span>
+                            <span>${currency === 'USD' ? '$' : ''}${(Number(tx.taxAmount ?? 0)).toFixed(2)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold;">
+                            <span>Total:</span>
+                            <span>${currency === 'USD' ? '$' : ''}${(Number(tx.totalAmount ?? 0)).toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
             } else {
-                alert('No transaction data provided.');
+                const txEl = document.getElementById('transaction');
+                txEl.style.display = 'block';
+                txEl.innerHTML = `
+                    <div style="color: #dc3545; padding: 20px; text-align: center;">
+                        <strong>Transaction Not Found</strong><br>
+                        <p style="margin-top: 10px;">The receipt number "${txnId || 'N/A'}" could not be found in our records.</p>
+                        <p style="margin-top: 10px; font-size: 14px;">Please verify the receipt number and try again.</p>
+                    </div>
+                `;
             }
         }
         displayTransaction();

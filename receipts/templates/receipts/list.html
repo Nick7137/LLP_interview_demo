@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Receipts</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f26522">
+    <style>
+        :root {
+            --bg: #121212;
+            --appbar: #0f0f0f;
+            --surface: #1e1e1e;
+            --border: #2a2a2a;
+            --text: #f5f5f5;
+            --muted: #c7c7c7;
+            --accent: #f26522;
+            --accent-2: #ff7a1a;
+            --success: #9be07f;
+            --danger: #ff5c5c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .appbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--appbar);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            letter-spacing: .2px;
+        }
+
+        .brand .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            background: var(--accent);
+            margin-right: 10px;
+        }
+
+        .brand span {
+            font-size: 18px;
+        }
+
+        .container {
+            padding: 16px;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin: 12px 0 8px;
+        }
+
+        .status {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            margin-top: 16px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #1a1a1a;
+            color: var(--text);
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 255, 255, .2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .nfc-anim {
+            margin: 24px auto 8px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 50%, rgba(242, 101, 34, .15) 0, rgba(242, 101, 34, .05) 55%, transparent 60%);
+            border: 2px dashed rgba(242, 101, 34, .35);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.06);
+            }
+        }
+
+        .receipt-button {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
+            text-decoration: none;
+        }
+
+        .receipt-button:hover {
+            background: #252525;
+            border-color: var(--accent);
+        }
+
+        .receipt-button:active {
+            transform: scale(0.98);
+        }
+
+        .receipt-title {
+            font-weight: 600;
+            font-size: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            background: #2b2b2b;
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            border-radius: 24px;
+            font-size: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s, transform .25s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        .helper {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="appbar">
+        <div class="brand">
+            <div class="dot"></div>
+            <span>Receipts</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Receipts</h1>
+        <p class="status" id="receiptsStatus">Tap an NFC card to receive receipts.</p>
+
+        <div class="nfc-anim" aria-hidden="true"></div>
+
+        <div class="card">
+            <div class="pill" id="nfcIndicator">
+                <div class="spinner" aria-hidden="true"></div>
+                <span>Listening for NFC…</span>
+            </div>
+            <p class="helper" id="secureNote">Web NFC requires Chrome on Android and HTTPS.</p>
+        </div>
+
+        <div class="card" id="receiptsList" style="min-height: 200px; margin-top: 16px;">
+            {% if transactions %}
+                <div id="receiptsContainer">
+                    {% for transaction in transactions %}
+                        <a href="{% url 'receipt_detail' transaction.receipt_number %}" class="receipt-button">
+                            <div class="receipt-title">
+                                {{ transaction.merchant_name }} - {{ transaction.timestamp|date:"M d, Y" }} - ${{ transaction.total_amount|floatformat:2 }}
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div id="noReceipts" style="text-align: center; padding: 40px 20px; color: var(--muted);">
+                    <p style="font-size: 16px; margin: 0;">No receipts received yet</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const fmt = (n) => '$' + (Math.round(n * 100) / 100).toFixed(2);
+        
+        function showToast(msg, timeout = 2000) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => t.classList.remove('show'), timeout);
+        }
+
+        function beep(ms = 150, freq = 880) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.02, ctx.currentTime);
+                osc.connect(gain).connect(ctx.destination);
+                osc.start();
+                setTimeout(() => { osc.stop(); ctx.close(); }, ms);
+            } catch { }
+        }
+
+        let reader;
+        let handlingTap = false;
+
+        function setListeningUI(active) {
+            const ind = document.getElementById('nfcIndicator');
+            if (ind) {
+                ind.innerHTML = active
+                    ? '<div class="spinner" aria-hidden="true"></div><span>Listening for NFC…</span>'
+                    : '<span>Not listening</span>';
+            }
+        }
+
+        function parseOrderFromTag(event) {
+            let amount = null;
+            try {
+                for (const record of event.message.records) {
+                    if (record.recordType === 'text') {
+                        const txt = new TextDecoder(record.encoding || 'utf-8').decode(record.data);
+                        let m = txt.match(/(?:amount|amt|total)\s*[:=]\s*\$?\s*(\d+(?:\.\d{1,2})?)/i);
+                        if (!m) m = txt.match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
+                        if (m) amount = Number(m[1]);
+                    } else if (record.recordType === 'mime' && record.mediaType === 'application/json') {
+                        const json = JSON.parse(new TextDecoder('utf-8').decode(record.data));
+                        if (typeof json.amount === 'number') amount = json.amount;
+                    }
+                }
+            } catch { }
+            if (!amount || !isFinite(amount)) amount = 12.75; // fallback
+            return { amount };
+        }
+
+        async function processNFCTap(order) {
+            try {
+                const response = await fetch('/api/nfc-tap/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: order.amount,
+                        merchantName: order.merchantName || 'Demo Merchant'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Receipt received ' + fmt(data.amount));
+                    beep(140, 880);
+                    // Reload page to show new receipt
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    showToast('Error: ' + (data.error || 'Failed to create receipt'));
+                }
+            } catch (error) {
+                console.error('Error processing NFC tap:', error);
+                showToast('Error processing receipt');
+            }
+        }
+
+        async function startScan() {
+            if (!('NDEFReader' in window)) {
+                const statusEl = document.getElementById('receiptsStatus');
+                if (statusEl) {
+                    statusEl.textContent = 'Web NFC not supported. Use Chrome on Android.';
+                }
+                setListeningUI(false);
+                return;
+            }
+            try {
+                reader = new NDEFReader();
+                await reader.scan();
+                setListeningUI(true);
+                const statusEl = document.getElementById('receiptsStatus');
+                if (statusEl) {
+                    statusEl.textContent = 'Ready. Hold a card/tag near the phone to receive receipts.';
+                }
+                reader.onreadingerror = () => {
+                    const statusEl = document.getElementById('receiptsStatus');
+                    if (statusEl) {
+                        statusEl.textContent = 'Read error, try again.';
+                    }
+                    showToast('NFC read error');
+                };
+                reader.onreading = (event) => {
+                    if (handlingTap) return;
+                    handlingTap = true;
+
+                    const statusEl = document.getElementById('receiptsStatus');
+                    if (statusEl) {
+                        statusEl.textContent = 'Processing…';
+                    }
+                    showToast('Card detected');
+                    beep(120, 1200);
+
+                    const order = parseOrderFromTag(event);
+                    setTimeout(() => {
+                        processNFCTap(order);
+                        handlingTap = false;
+                    }, 900);
+                };
+            } catch (err) {
+                setListeningUI(false);
+                const statusEl = document.getElementById('receiptsStatus');
+                if (statusEl) {
+                    statusEl.textContent = 'Tap the screen once to enable NFC, then hold a card near the phone.';
+                }
+                const enableOnce = async () => {
+                    document.removeEventListener('pointerdown', enableOnce);
+                    try {
+                        await startScan();
+                    } catch { }
+                };
+                document.addEventListener('pointerdown', enableOnce, { once: true });
+            }
+        }
+
+        // Initialize
+        (function init() {
+            const secureNote = document.getElementById('secureNote');
+            if (secureNote && (!isSecureContext || location.protocol !== 'https:')) {
+                secureNote.textContent = 'This page must be served over HTTPS. Web NFC works in Chrome on Android.';
+            }
+            startScan();
+        })();
+    </script>
+</body>
+</html>
+

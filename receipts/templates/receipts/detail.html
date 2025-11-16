@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Transaction Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f4f7f9; 
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card { 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin-top: 20px; 
+            overflow: hidden;
+        }
+
+        .items { margin-top: 20px; }
+        .item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; }
+        .item:last-child { border-bottom: none; }
+
+        .total { 
+            margin-top: 20px; 
+            font-weight: bold; 
+            font-size: 18px; 
+        }
+        
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Transaction Details</h1>
+    </header>
+    <div class="container">
+        <div class="card">
+            <div style="margin-bottom: 16px;">
+                <strong>Receipt Number:</strong> {{ transaction.receipt_number }}<br>
+                <strong>Transaction ID:</strong> {{ transaction.id }}<br>
+                <strong>Merchant:</strong> {{ transaction.merchant_name }}<br>
+                <strong>Date:</strong> {{ transaction.timestamp|date:"F d, Y g:i A" }}<br>
+                <strong>Currency:</strong> {{ transaction.currency }}<br>
+            </div>
+            <div class="items">
+                <strong style="display: block; margin-bottom: 12px; font-size: 16px;">Itemized Receipt</strong>
+                {% if items %}
+                    {% for item in items %}
+                        <div class="item">
+                            <span>{{ item.quantity }} × {{ item.name }}</span>
+                            <span>${{ item.line_total|floatformat:2 }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="item"><span>No items found</span></div>
+                {% endif %}
+            </div>
+            <div class="total" style="margin-top: 16px; padding-top: 16px; border-top: 2px solid #ddd;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span>Subtotal:</span>
+                    <span>${{ transaction.amount|floatformat:2 }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span>Tax:</span>
+                    <span>${{ transaction.tax_amount|floatformat:2 }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold;">
+                    <span>Total:</span>
+                    <span>${{ transaction.total_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+            <a href="{% url 'receipts_list' %}" class="btn">Back to Receipts</a>
+        </div>
+        <div class="footer">© 2024 Bank Name. All rights reserved.</div>
+    </div>
+</body>
+</html>
+

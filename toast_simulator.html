@@ -3,232 +3,126 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Card Reader Simulator</title>
+    <title>Toast Simulator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#3993D4">
+    <meta name="theme-color" content="#f26522">
     <style>
         :root {
-            --brand-blue: #3993d4;
-            --brand-blue-dark: #2d74a9;
-            --light-bg: #f0f2f5;
-            --white: #fff;
-            --text-dark: #1a1f36;
-            --text-light: #fff;
-            --text-muted: #6b7280;
-            --border-color: #e5e7eb;
-            --success: #22c55e;
-            --danger: #ef4444;
+            --bg: #121212;
+            --appbar: #0f0f0f;
+            --surface: #1e1e1e;
+            --border: #2a2a2a;
+            --text: #f5f5f5;
+            --muted: #c7c7c7;
+            --accent: #f26522;
+            --accent-2: #ff7a1a;
+            --success: #9be07f;
+            --danger: #ff5c5c;
         }
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-            background: var(--light-bg);
-            color: var(--text-dark);
+            margin: 0;
+            font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .appbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
             display: flex;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-            padding: 24px;
-        }
-
-        /* --- Main Device Structure & 3D Effect --- */
-        .device-wrapper {
-            perspective: 1200px;
-        }
-
-        .card-reader-device {
-            width: 320px;
-            height: 480px;
-            background: #fdfdfd;
-            border-radius: 28px;
-            box-shadow:
-                0 2.8px 2.2px rgba(0, 0, 0, 0.02),
-                0 6.7px 5.3px rgba(0, 0, 0, 0.028),
-                0 12.5px 10px rgba(0, 0, 0, 0.035),
-                0 22.3px 17.9px rgba(0, 0, 0, 0.042),
-                0 41.8px 33.4px rgba(0, 0, 0, 0.05),
-                0 100px 80px rgba(0, 0, 0, 0.07),
-                inset 0 2px 4px rgba(255, 255, 255, 0.8),
-                inset 0 -4px 10px rgba(0, 0, 0, 0.05);
-            transform-style: preserve-3d;
-            transform: rotateX(10deg) rotateY(-20deg);
-            transition: transform 0.4s ease;
-            position: relative;
-            padding: 16px;
-        }
-
-        .card-reader-device.processing {
-            transform: rotateX(5deg) rotateY(-10deg) scale(0.98);
-        }
-
-        .screen-bezel {
-            width: 100%;
-            height: 100%;
-            background: #111;
-            border-radius: 18px;
-            overflow: hidden;
-        }
-
-        .screen {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            height: 100%;
-            background: var(--brand-blue);
-            color: var(--text-light);
-            text-align: center;
-            border-radius: 16px;
-            padding: 12px;
-        }
-
-        .screen-header {
-            text-align: right;
-            font-size: 24px;
-            opacity: 0.5;
-            height: 24px;
-        }
-
-        .screen-body {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .screen-footer {
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card-slot {
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 85%;
-            height: 14px;
-            background: #e1e3e6;
-            border-radius: 7px;
-            border: 1px solid #ccc;
-            box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .card-slot::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1.5px;
-            background: #333;
-            transform: translateY(-50%);
-        }
-
-        /* --- Reader Screen Content --- */
-        .tap-icon {
-            width: 160px;
-            height: 100px;
-            object-fit: contain;
-            /* Ensures the image scales correctly */
-            transition: transform 0.3s ease;
-            margin-bottom: 10px;
-            filter: brightness(0) invert(1);
-            /* This trick makes the black PNG appear white */
-        }
-
-        .tap-icon.approved {
-            animation: approved-pop 0.5s ease-out;
-            filter: none;
-            /* remove filter for the checkmark svg */
-        }
-
-        @keyframes approved-pop {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.2);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .amount-display {
-            font-size: 48px;
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
-
-        .status-text {
-            font-size: 16px;
-            opacity: 0.8;
-        }
-
-        .chip-card-button {
-            display: flex;
-            align-items: center;
+            justify-content: space-between;
             gap: 10px;
-            background: var(--white);
-            color: var(--brand-blue);
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 12px 16px;
+            background: var(--appbar);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
             font-weight: 600;
+            letter-spacing: .2px;
         }
 
-        .chip-card-button svg {
-            width: 28px;
-            height: 28px;
+        .brand .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            background: var(--accent);
+            margin-right: 10px;
         }
 
-        /* --- POS View (Tips & Receipt) --- */
-        #posView {
-            width: 100%;
-            max-width: 420px;
-            background: var(--white);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        .brand span {
+            font-size: 18px;
+        }
+
+        .mode {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .container {
+            padding: 16px;
+            max-width: 640px;
+            margin: 0 auto;
         }
 
         h1 {
-            font-size: 24px;
-            margin-bottom: 24px;
-            text-align: center;
+            font-size: 22px;
+            margin: 12px 0 8px;
+        }
+
+        .helper,
+        .status {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 14px;
         }
 
         .card {
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
             margin-top: 16px;
         }
 
-        .card h2 {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0 0 12px;
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .grow {
+            flex: 1;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #1a1a1a;
+            color: var(--text);
+        }
+
+        .items {
+            margin-top: 8px;
         }
 
         .item {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
-            font-size: 15px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border);
         }
 
         .item:last-child {
@@ -236,12 +130,114 @@
         }
 
         .price {
+            color: var(--success);
             font-weight: 600;
         }
 
-        .total {
-            font-size: 18px;
-            font-weight: 700;
+        .danger {
+            color: var(--danger);
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .primary-btn {
+            color: #fff;
+            background: var(--accent);
+            box-shadow: 0 6px 16px rgba(242, 101, 34, .35);
+        }
+
+        .secondary-btn {
+            color: var(--text);
+            background: #252525;
+            border: 1px solid var(--border);
+        }
+
+        .primary-btn[disabled] {
+            opacity: .6;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 255, 255, .2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .nfc-anim {
+            margin: 24px auto 8px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 50%, rgba(242, 101, 34, .15) 0, rgba(242, 101, 34, .05) 55%, transparent 60%);
+            border: 2px dashed rgba(242, 101, 34, .35);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.06);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            background: #2b2b2b;
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            border-radius: 24px;
+            font-size: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s, transform .25s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #1a1a1a;
+            color: var(--text);
+            font-size: 16px;
         }
 
         .grid {
@@ -252,168 +248,135 @@
 
         .choice {
             padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            background: var(--light-bg);
-            color: var(--text-dark);
-            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #1a1a1a;
+            color: var(--text);
+            border-radius: 10px;
             text-align: center;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s ease;
         }
 
         .choice.active {
-            border-color: var(--brand-blue);
-            background: var(--brand-blue);
-            color: var(--white);
-            font-weight: 600;
+            border-color: var(--accent);
+            background: #231815;
         }
 
-        label.helper {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-muted);
-            margin-bottom: 6px;
+        .total {
+            font-size: 18px;
+            font-weight: 700;
         }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: #f9fafb;
-            color: var(--text-dark);
-            font-size: 16px;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--brand-blue);
-            box-shadow: 0 0 0 2px rgba(57, 147, 212, 0.3);
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .grow {
-            flex-grow: 1;
-        }
-
-        .primary-btn,
-        .secondary-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 14px 18px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .primary-btn {
-            color: var(--white);
-            background: var(--brand-blue);
-        }
-
-        .primary-btn:hover {
-            background: var(--brand-blue-dark);
-        }
-
-        .secondary-btn {
-            color: var(--text-dark);
-            background: var(--white);
-            border: 1px solid var(--border-color);
-        }
-
-        .secondary-btn:hover {
-            background-color: #f9fafb;
-        }
-
-
-        /* --- Utilities --- */
         .hidden {
-            display: none !important;
+            display: none;
         }
 
-        .toast {
-            position: fixed;
-            left: 50%;
-            bottom: 20px;
-            transform: translateX(-50%);
-            background: #323232;
-            color: #fff;
-            padding: 12px 18px;
-            border-radius: 8px;
-            font-size: 15px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .25s, transform .25s;
-            z-index: 999;
+        .receipt-button {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
         }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(-10px);
+        .receipt-button:hover {
+            background: #252525;
+            border-color: var(--accent);
+        }
+
+        .receipt-button:active {
+            transform: scale(0.98);
+        }
+
+        .receipt-title {
+            font-weight: 600;
+            font-size: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
 </head>
 
 <body>
-    <div class="device-wrapper">
-        <!-- State 1: Card Reader View -->
-        <div class="card-reader-device" id="readerView">
-            <div class="screen-bezel">
-                <div class="screen">
-                    <div class="screen-header">
-                        <span class="close-icon">&times;</span>
-                    </div>
-                    <div class="screen-body">
-                        <div id="readerIconContainer">
+    <div class="appbar">
+        <div class="brand">
+            <div class="dot"></div>
+            <span>Toast Simulator</span>
+        </div>
+        <div class="mode" id="modeLabel">Mode: Card Reader</div>
+    </div>
 
-                            <!-- REPLACEMENT: Use an <img> tag -->
-                            <img class="tap-icon" id="tapIcon"
-                                src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/path/to/your/image.png"
-                                alt="Tap to pay icon">
+    <div class="container">
+        <!-- Card Reader View (Hidden by default, can be accessed if needed) -->
+        <section id="readerView" class="hidden">
+            <h1>Card Reader</h1>
+            <p class="status" id="readerStatus">Ready. Hold a card/tag near the phone to simulate a tap-to-pay.</p>
 
-                            <!-- Approved Icon SVG (Checkmark) -->
-                            <svg class="tap-icon hidden" id="approvedIcon" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6L9 17l-5-5"></path>
-                            </svg>
+            <div class="nfc-anim" aria-hidden="true"></div>
+
+            <div class="card">
+                <div class="row">
+                    <div class="grow">
+                        <div class="pill" id="nfcIndicator">
+                            <div class="spinner" aria-hidden="true"></div>
+                            <span>Listening for NFC…</span>
                         </div>
-                        <div id="readerAmount" class="amount-display">$0.00</div>
-                        <div id="readerStatus" class="status-text">Tap, Insert, or Swipe</div>
-                        <p id="nfcHelper" style="font-size: 12px; opacity: 0.6; margin-top: 10px;"></p>
+                        <p class="helper" id="secureNote">Web NFC requires Chrome on Android and HTTPS.</p>
                     </div>
-                    <div class="screen-footer">
-                        <div class="chip-card-button">
-                            <!-- Chip Icon SVG -->
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
-                                <path d="M6 9h4m4 0h2M6 13h2m4 0h4"></path>
-                            </svg>
-                            <span>Insert Card</span>
-                        </div>
+                </div>
+                <div class="items" id="lastAuth" style="display:none; margin-top:12px;">
+                    <div class="item">
+                        <div>Auth result</div>
+                        <div id="authResult" class="price">Approved</div>
+                    </div>
+                    <div class="item">
+                        <div>Amount</div>
+                        <div id="authAmount" class="price">$0.00</div>
                     </div>
                 </div>
             </div>
-            <div class="card-slot"></div>
-        </div>
+        </section>
 
-        <!-- State 2: POS View (No changes needed here) -->
-        <section id="posView" class="hidden">
-            <h1>Payment Details</h1>
+        <!-- Main Receipts View (Default) -->
+        <section id="receiptsView">
+            <h1>Receipts</h1>
+            <p class="status" id="receiptsStatus">Tap an NFC card to receive receipts.</p>
+
+            <div class="nfc-anim" aria-hidden="true"></div>
+
             <div class="card">
-                <h2>Order Summary</h2>
+                <div class="row">
+                    <div class="grow">
+                        <div class="pill" id="nfcIndicatorReceipts">
+                            <div class="spinner" aria-hidden="true"></div>
+                            <span>Listening for NFC…</span>
+                        </div>
+                        <p class="helper" id="secureNoteReceipts">Web NFC requires Chrome on Android and HTTPS.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="receiptsList" style="min-height: 200px; margin-top: 16px;">
+                <div id="noReceipts" style="text-align: center; padding: 40px 20px; color: var(--muted);">
+                    <p style="font-size: 16px; margin: 0;">No receipts received yet</p>
+                </div>
+                <div id="receiptsContainer" style="display: none;"></div>
+            </div>
+        </section>
+
+        <!-- State 3: Toast POS interface (kept for backward compatibility) -->
+        <section id="posView" class="hidden">
+            <h1>Toast POS</h1>
+            <p class="status">Enter tip and receipt info.</p>
+
+            <div class="card">
+                <h2 style="margin:0 0 8px 0;">Order Summary</h2>
                 <div class="items">
                     <div class="item">
                         <div>Subtotal</div>
@@ -429,30 +392,34 @@
                     </div>
                 </div>
             </div>
+
             <div class="card">
-                <h2>Add a Tip</h2>
+                <h2 style="margin:0 0 8px 0;">Tip</h2>
                 <div class="grid" id="tipChoices">
                     <div class="choice" data-pct="0">No Tip</div>
+                    <div class="choice" data-pct="10">10%</div>
                     <div class="choice" data-pct="15">15%</div>
-                    <div class="choice" data-pct="18">18%</div>
                     <div class="choice" data-pct="20">20%</div>
                 </div>
-                <div style="margin-top:14px;">
+                <div style="margin-top:10px;">
                     <label class="helper" for="customTipPct">Custom tip (%)</label>
-                    <input id="customTipPct" type="number" min="0" max="100" step="1" placeholder="Enter custom %">
+                    <input id="customTipPct" type="number" min="0" max="100" step="1"
+                        placeholder="Enter custom % (e.g., 18)">
                 </div>
             </div>
+
             <div class="card">
-                <h2>Receipt</h2>
+                <h2 style="margin:0 0 8px 0;">Receipt</h2>
                 <div class="row">
                     <div class="grow">
-                        <label class="helper" for="phone">Phone number (for SMS receipt)</label>
+                        <label class="helper" for="phone">Phone number (SMS receipt)</label>
                         <input id="phone" type="tel" inputmode="tel" placeholder="(555) 123-4567">
                     </div>
                 </div>
             </div>
-            <div class="btn-row">
-                <button class="secondary-btn" id="backToReader">Back</button>
+
+            <div class="row" style="margin-top:14px;">
+                <button class="secondary-btn" id="backToReader">Back to Reader</button>
                 <div class="grow"></div>
                 <button class="primary-btn" id="completeSale">
                     <span>Complete Sale</span>
@@ -464,92 +431,245 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script>
-        // --- THE JAVASCRIPT IS UNCHANGED ---
-        // It will work perfectly because it targets elements by their ID,
-        // and we kept the same ID ('tapIcon') for the new <img> tag.
-
-        // --- DOM Elements ---
-        const readerView = document.getElementById('readerView');
-        const posView = document.getElementById('posView');
-        const readerDevice = document.querySelector('.card-reader-device');
-        const readerAmountEl = document.getElementById('readerAmount');
-        const readerStatusEl = document.getElementById('readerStatus');
-        const nfcHelperEl = document.getElementById('nfcHelper');
-        const tapIcon = document.getElementById('tapIcon');
-        const approvedIcon = document.getElementById('approvedIcon');
-
         // --- Utilities ---
         const fmt = (n) => '$' + (Math.round(n * 100) / 100).toFixed(2);
-        function showToast(msg, timeout = 2500) {
+        function showToast(msg, timeout = 2000) {
             const t = document.getElementById('toast');
             t.textContent = msg;
             t.classList.add('show');
             clearTimeout(t._timer);
             t._timer = setTimeout(() => t.classList.remove('show'), timeout);
         }
-        function beep(ms = 150, freq = 880, vol = 0.05) {
+        function beep(ms = 150, freq = 880) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, ctx.currentTime);
-                gain.gain.setValueAtTime(vol, ctx.currentTime);
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.02, ctx.currentTime);
                 osc.connect(gain).connect(ctx.destination);
                 osc.start();
                 setTimeout(() => { osc.stop(); ctx.close(); }, ms);
-            } catch { /* AudioContext might be blocked */ }
+            } catch { }
         }
 
         // --- State management ---
-        let appState = 'reader';        // 'reader' | 'pos'
+        let state = 'receipts';      // 'reader' | 'receipts' | 'pos' - receipts is default
         let reader;                  // NDEFReader instance
         let scanningReady = false;   // NFC scan permission acquired
-        let lastOrder = { amount: 9.86, description: 'Order' }; // default if tag lacks data
+        let lastOrder = { amount: 12.75, description: 'Order' }; // default if tag lacks data
         let handlingTap = false;
+        let currentTransactionId = null;
 
         function setState(next, payload) {
-            appState = next;
+            state = next;
+            const modeLabels = {
+                'reader': 'Card Reader',
+                'receipts': 'Receipts',
+                'pos': 'Toast POS'
+            };
+            document.getElementById('modeLabel').textContent = 'Mode: ' + (modeLabels[state] || state);
+            document.getElementById('readerView').classList.toggle('hidden', state !== 'reader');
+            document.getElementById('receiptsView').classList.toggle('hidden', state !== 'receipts');
+            document.getElementById('posView').classList.toggle('hidden', state !== 'pos');
 
-            readerView.classList.toggle('hidden', appState !== 'reader');
-            posView.classList.toggle('hidden', appState !== 'pos');
-
-            if (appState === 'pos') {
+            if (state === 'receipts') {
+                renderReceiptsList();
+            } else if (state === 'pos') {
                 if (payload && payload.amount) lastOrder.amount = payload.amount;
                 renderPOS();
-            } else { // 'reader'
-                readerAmountEl.textContent = fmt(lastOrder.amount);
-                readerStatusEl.textContent = 'Tap, Insert, or Swipe';
-                tapIcon.classList.remove('hidden');
-                approvedIcon.classList.add('hidden');
-                updateNfcHelper();
+            } else {
+                document.getElementById('lastAuth').style.display = 'none';
+                document.getElementById('readerStatus').textContent =
+                    scanningReady ? 'Ready. Hold a card/tag near the phone to simulate a tap-to-pay.'
+                        : 'Tap the screen once to enable NFC, then hold a card near the phone.';
             }
         }
 
-        function updateNfcHelper() {
-            if (!('NDEFReader' in window)) {
-                nfcHelperEl.textContent = 'Web NFC not supported on this browser.';
-                return;
+        // Render the receipts list
+        function renderReceiptsList() {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '{}');
+            const receiptList = [];
+            
+            // Collect all unique transactions (avoid duplicates from both txnId and receiptNumber keys)
+            const seenIds = new Set();
+            for (const key in transactions) {
+                const tx = transactions[key];
+                if (tx && tx.id && !seenIds.has(tx.id)) {
+                    seenIds.add(tx.id);
+                    receiptList.push(tx);
+                }
             }
-            if (!scanningReady) {
-                nfcHelperEl.textContent = 'Tap screen to enable NFC listening.';
+            
+            // Sort by timestamp (newest first)
+            receiptList.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            const noReceiptsEl = document.getElementById('noReceipts');
+            const receiptsContainerEl = document.getElementById('receiptsContainer');
+            
+            if (receiptList.length === 0) {
+                noReceiptsEl.style.display = 'block';
+                receiptsContainerEl.style.display = 'none';
             } else {
-                nfcHelperEl.textContent = 'Listening for NFC tap...';
+                noReceiptsEl.style.display = 'none';
+                receiptsContainerEl.style.display = 'block';
+                receiptsContainerEl.innerHTML = receiptList.map(tx => {
+                    const date = new Date(tx.timestamp).toLocaleDateString();
+                    const title = `${tx.merchantName || 'Transaction'} - ${date} - ${fmt(tx.totalAmount || tx.amount || 0)}`;
+                    return `
+                        <button class="receipt-button" data-txn-id="${tx.id}" data-receipt-number="${tx.receiptNumber || tx.id}">
+                            <div class="receipt-title">${title}</div>
+                        </button>
+                    `;
+                }).join('');
+                
+                // Add click handlers to receipt buttons
+                receiptsContainerEl.querySelectorAll('.receipt-button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const receiptNumber = btn.dataset.receiptNumber;
+                        const bankUrl = new URL('bank.html', window.location.href);
+                        bankUrl.searchParams.set('txn', receiptNumber);
+                        window.location.href = bankUrl.toString();
+                    });
+                });
             }
+        }
+
+        // Generate a unique transaction ID
+        function generateTransactionId() {
+            return 'TXN' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase();
+        }
+
+        // Store transaction data in localStorage (in a real app, this would be on a server)
+        function storeTransactionData(txnId, orderData) {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '{}');
+            const receiptNumber = generateReceiptNumber(); // Generate a simpler receipt number for user entry
+            
+            const transactionData = {
+                id: txnId,
+                receiptNumber: receiptNumber, // User-friendly receipt number
+                amount: orderData?.amount || lastOrder.amount,
+                timestamp: new Date().toISOString(),
+                merchantName: orderData?.merchantName || 'Demo Merchant',
+                currency: 'USD',
+                items: orderData?.items || generateDefaultItems(orderData?.amount || lastOrder.amount),
+                taxAmount: (orderData?.amount || lastOrder.amount) * 0.08,
+                totalAmount: orderData?.amount || lastOrder.amount
+            };
+            
+            // Store by transaction ID
+            transactions[txnId] = transactionData;
+            // Also store by receipt number for easy lookup
+            transactions[receiptNumber] = transactionData;
+            
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            // Automatically switch to receipts view and update the list
+            setState('receipts');
+        }
+
+        // Generate a simpler receipt number (e.g., 123456789)
+        function generateReceiptNumber() {
+            // Generate a 9-digit receipt number
+            return Math.floor(100000000 + Math.random() * 900000000).toString();
+        }
+
+        // Generate default itemized list based on amount
+        function generateDefaultItems(amount) {
+            const items = [];
+            
+            // More realistic itemized receipts for fraud prevention
+            if (amount >= 50) {
+                // Large purchase - likely multiple items
+                const itemTypes = [
+                    { name: 'Office Supplies - Paper', basePrice: 12.99 },
+                    { name: 'Office Supplies - Pens', basePrice: 8.50 },
+                    { name: 'Office Supplies - Folders', basePrice: 15.00 },
+                    { name: 'Business Meal', basePrice: 25.00 },
+                    { name: 'Client Entertainment', basePrice: 30.00 },
+                    { name: 'Travel Expense - Parking', basePrice: 10.00 },
+                    { name: 'Travel Expense - Fuel', basePrice: 35.00 }
+                ];
+                
+                let remaining = amount * 0.92; // Leave room for tax
+                const selectedItems = [];
+                
+                // Randomly select 2-4 items
+                const numItems = Math.min(4, Math.max(2, Math.floor(amount / 20)));
+                for (let i = 0; i < numItems && remaining > 5; i++) {
+                    const item = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+                    const qty = Math.random() > 0.7 ? Math.floor(Math.random() * 3) + 1 : 1;
+                    const price = Math.min(item.basePrice * qty, remaining * 0.6);
+                    selectedItems.push({
+                        name: item.name,
+                        qty: qty,
+                        unitPrice: item.basePrice,
+                        lineTotal: Math.round(price * 100) / 100
+                    });
+                    remaining -= price;
+                }
+                
+                // Add remaining as a generic item if there's significant amount left
+                if (remaining > 2) {
+                    selectedItems.push({
+                        name: 'Miscellaneous Expense',
+                        qty: 1,
+                        unitPrice: Math.round(remaining * 100) / 100,
+                        lineTotal: Math.round(remaining * 100) / 100
+                    });
+                }
+                
+                return selectedItems;
+            } else if (amount >= 20) {
+                // Medium purchase
+                items.push({ 
+                    name: 'Business Meal', 
+                    qty: 1, 
+                    unitPrice: Math.round(amount * 0.7 * 100) / 100, 
+                    lineTotal: Math.round(amount * 0.7 * 100) / 100 
+                });
+                items.push({ 
+                    name: 'Beverages', 
+                    qty: 1, 
+                    unitPrice: Math.round(amount * 0.3 * 100) / 100, 
+                    lineTotal: Math.round(amount * 0.3 * 100) / 100 
+                });
+            } else if (amount >= 10) {
+                // Small-medium purchase
+                items.push({ 
+                    name: 'Coffee & Pastries', 
+                    qty: Math.floor(Math.random() * 2) + 1, 
+                    unitPrice: Math.round((amount / (Math.floor(Math.random() * 2) + 1)) * 100) / 100, 
+                    lineTotal: Math.round(amount * 0.9 * 100) / 100 
+                });
+            } else {
+                // Small purchase
+                items.push({ 
+                    name: 'Coffee & Snacks', 
+                    qty: 1, 
+                    unitPrice: Math.round(amount * 100) / 100, 
+                    lineTotal: Math.round(amount * 100) / 100 
+                });
+            }
+            
+            return items;
         }
 
         // --- POS rendering and interactions ---
-        let tipPct = 18; // Default tip
+        let tipPct = 0;
         function renderPOS() {
             document.getElementById('subtotal').textContent = fmt(lastOrder.amount);
             const tip = Math.round(lastOrder.amount * tipPct) / 100;
             document.getElementById('tipAmount').textContent = fmt(tip);
             document.getElementById('total').textContent = fmt(lastOrder.amount + tip);
 
+            // visual selection state
             document.querySelectorAll('#tipChoices .choice').forEach(el => {
-                el.classList.toggle('active', Number(el.dataset.pct) === tipPct);
+                const pct = Number(el.dataset.pct);
+                el.classList.toggle('active', pct === tipPct);
             });
-            document.getElementById('customTipPct').value = '';
+            document.getElementById('customTipPct').value = tipPct % 1 === 0 ? tipPct : '';
         }
 
         function setTip(pct) {
@@ -563,102 +683,146 @@
             setTip(Number(target.dataset.pct));
         });
         document.getElementById('customTipPct').addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            if (!isNaN(val)) {
-                tipPct = Math.max(0, Math.min(100, val));
-                renderPOS();
-                document.querySelectorAll('#tipChoices .choice').forEach(el => {
-                    el.classList.remove('active');
-                });
-            }
+            const val = Number(e.target.value);
+            if (!isNaN(val)) setTip(val);
         });
 
-        document.getElementById('backToReader').addEventListener('click', () => {
-            setState('reader');
-        });
+        // Navigation handlers (if elements exist)
+        const viewReceiptsBtn = document.getElementById('viewReceiptsBtn');
+        if (viewReceiptsBtn) {
+            viewReceiptsBtn.addEventListener('click', () => {
+                setState('receipts');
+            });
+        }
+
+        const backToReaderFromReceipts = document.getElementById('backToReaderFromReceipts');
+        if (backToReaderFromReceipts) {
+            backToReaderFromReceipts.addEventListener('click', () => {
+                setState('reader');
+            });
+        }
+
+        const backToReader = document.getElementById('backToReader');
+        if (backToReader) {
+            backToReader.addEventListener('click', () => {
+                setState('reader');
+            });
+        }
 
         document.getElementById('completeSale').addEventListener('click', () => {
+            const phone = (document.getElementById('phone').value || '').trim();
             const tip = Math.round(lastOrder.amount * tipPct) / 100;
             const total = lastOrder.amount + tip;
 
-            showToast('Payment of ' + fmt(total) + ' complete!');
+            // Simple phone validation: at least 10 digits (optional)
+            const digits = phone.replace(/\D/g, '');
+            if (phone && digits.length < 10) {
+                showToast('Enter a valid phone number');
+                return;
+            }
+
+            showToast('Payment complete • ' + fmt(total));
             // Reset for next transaction
-            lastOrder.amount = Math.floor(Math.random() * (50 - 5 + 1) + 5) + Math.random(); // New random amount
-            setTip(18);
+            setTip(0);
             document.getElementById('phone').value = '';
             setState('reader');
         });
 
-        // --- NFC scanning logic ---
+        // --- NFC scanning (no explicit scan button) ---
+        function setListeningUI(active) {
+            const ind = document.getElementById('nfcIndicator');
+            const indReceipts = document.getElementById('nfcIndicatorReceipts');
+            const indicator = ind || indReceipts;
+            if (indicator) {
+                indicator.innerHTML = active
+                    ? '<div class="spinner" aria-hidden="true"></div><span>Listening for NFC…</span>'
+                    : '<span>Not listening</span>';
+            }
+        }
+
         function parseOrderFromTag(event) {
             let amount = null;
             try {
                 for (const record of event.message.records) {
+                    // Try URL or Text records; you can encode "amount=12.34" on your tag
                     if (record.recordType === 'text') {
                         const txt = new TextDecoder(record.encoding || 'utf-8').decode(record.data);
+                        // Match amount=12.34 or total:$12.34 or first number in text
                         let m = txt.match(/(?:amount|amt|total)\s*[:=]\s*\$?\s*(\d+(?:\.\d{1,2})?)/i);
                         if (!m) m = txt.match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
                         if (m) amount = Number(m[1]);
+                    } else if (record.recordType === 'mime' && record.mediaType === 'application/json') {
+                        const json = JSON.parse(new TextDecoder('utf-8').decode(record.data));
+                        if (typeof json.amount === 'number') amount = json.amount;
                     }
                 }
             } catch { }
-            return { amount: (amount && isFinite(amount)) ? amount : lastOrder.amount };
+            if (!amount || !isFinite(amount)) amount = lastOrder.amount; // fallback
+            return { amount };
         }
 
         async function startScan() {
             if (!('NDEFReader' in window)) {
-                updateNfcHelper();
+                const statusEl = document.getElementById('readerStatus') || document.getElementById('receiptsStatus');
+                if (statusEl) {
+                    statusEl.textContent = 'Web NFC not supported. Use Chrome on Android.';
+                }
+                setListeningUI(false);
                 return;
             }
             try {
                 reader = new NDEFReader();
                 await reader.scan();
                 scanningReady = true;
-                updateNfcHelper();
-
+                setListeningUI(true);
+                const statusEl = document.getElementById('readerStatus') || document.getElementById('receiptsStatus');
+                if (statusEl) {
+                    statusEl.textContent = 'Ready. Hold a card/tag near the phone to receive receipts.';
+                }
                 reader.onreadingerror = () => {
-                    if (appState !== 'reader') return;
-                    readerStatusEl.textContent = 'Read error, please try again.';
+                    const statusEl = document.getElementById('readerStatus') || document.getElementById('receiptsStatus');
+                    if (statusEl) {
+                        statusEl.textContent = 'Read error, try again.';
+                    }
                     showToast('NFC read error');
                 };
-
                 reader.onreading = (event) => {
-                    if (appState !== 'reader' || handlingTap) return;
+                    if (handlingTap) return;
                     handlingTap = true;
 
-                    // 1. Card detected
-                    readerStatusEl.textContent = 'Processing...';
-                    readerDevice.classList.add('processing');
-                    beep(120, 1200, 0.08);
+                    // Simulate processing and approval
+                    const statusEl = document.getElementById('readerStatus') || document.getElementById('receiptsStatus');
+                    if (statusEl) {
+                        statusEl.textContent = 'Processing…';
+                    }
+                    showToast('Card detected');
+                    beep(120, 1200);
 
                     const order = parseOrderFromTag(event);
-
-                    // 2. Simulate processing delay
+                    // brief fake processing delay
                     setTimeout(() => {
-                        // 3. Approved
-                        readerDevice.classList.remove('processing');
-                        readerStatusEl.textContent = 'Approved';
-                        readerAmountEl.textContent = fmt(order.amount);
-                        tapIcon.classList.add('hidden');
-                        approvedIcon.classList.remove('hidden');
-                        approvedIcon.classList.add('approved');
-                        beep(180, 980, 0.08);
+                        showToast('Receipt received ' + fmt(order.amount));
+                        beep(140, 880);
 
-                        // 4. Transition to POS view
-                        setTimeout(() => {
-                            setState('pos', order);
-                            handlingTap = false;
-                        }, 1200);
-
-                    }, 1000);
+                        // Generate transaction ID and store transaction data
+                        currentTransactionId = generateTransactionId();
+                        storeTransactionData(currentTransactionId, order);
+                        handlingTap = false;
+                    }, 900);
                 };
             } catch (err) {
-                // User gesture needed
-                scanningReady = false;
-                updateNfcHelper();
+                // Most likely NotAllowedError due to missing user gesture
+                setListeningUI(false);
+                const statusEl = document.getElementById('readerStatus') || document.getElementById('receiptsStatus');
+                if (statusEl) {
+                    statusEl.textContent = 'Tap the screen once to enable NFC, then hold a card near the phone.';
+                }
+                // Attach one-time gesture to begin scanning without a visible button
                 const enableOnce = async () => {
                     document.removeEventListener('pointerdown', enableOnce);
-                    await startScan();
+                    try {
+                        await startScan();
+                    } catch { }
                 };
                 document.addEventListener('pointerdown', enableOnce, { once: true });
             }
@@ -666,10 +830,13 @@
 
         // Initialize
         (function init() {
-            if (!isSecureContext) {
-                nfcHelperEl.textContent = 'Web NFC requires a secure (HTTPS) connection.';
+            // HTTPS note
+            const secureNote = document.getElementById('secureNote') || document.getElementById('secureNoteReceipts');
+            if (secureNote && (!isSecureContext || location.protocol !== 'https:')) {
+                secureNote.textContent =
+                    'This page must be served over HTTPS. Web NFC works in Chrome on Android.';
             }
-            setState('reader');
+            setState('receipts'); // Start with receipts view
             startScan();
         })();
     </script>
